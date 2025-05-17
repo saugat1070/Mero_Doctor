@@ -2,15 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { envConfig } from "../Config/envConfig";
 import User from "../dataBase/Model/userModel";
-import { IExtendRequest } from "../global/interface";
+import { IExtendRequest, Role } from "../global/interface";
 
 
 class UserMiddleware {
-    static async IsUserLoggin(
-        req: IExtendRequest,
-        res: Response,
-        next: NextFunction
-    ) {
+    static async IsUserLoggin(req: IExtendRequest,res: Response, next: NextFunction) {
         const auth = req?.headers?.authorization;
         const token = auth && auth.startsWith("Bearer ") ? auth.split(" ")[1] : null;
         if (!token) {
@@ -51,6 +47,22 @@ class UserMiddleware {
                 next();
             }
         });
+    }
+
+    static accessTo(...roles:Role[]){
+        return (req:IExtendRequest,res:Response,next:NextFunction) =>{
+            const user_role = req?.user?.role as Role
+            if(!roles.includes(user_role)){
+                res.status(400).json({
+                    message : "User must be Doctor or Admin"
+                });
+                return;
+            }else{
+                next();
+            }
+
+
+        }
     }
 }
 
