@@ -75,7 +75,47 @@ class UserController{
             token : token
         })
     }
+    static async updateUser(req:IExtendRequest,res:Response){
+        const user_id = req?.user?.id.toString();
+        let filename:string|null = null;
+        const update_info = req.body
+        if(!user_id){
+            res.status(400).json({
+                message : "couldn't find user id"
+            })
+            return;
+        }
+        filename = req.file ? req.file.filename : "https://localhost:3000/profile.png"
+        const [user] =await User.find({_id:user_id});
+        if(!user){
+            res.status(404).json({
+                message : "User is not found"
+            })
+            return;
+        }
 
+        try {
+           const user_update = await User.findOneAndUpdate({
+                _id:user_id
+            },{
+                email:update_info.email,
+                phoneNumber:update_info.phoneNumber,
+                address:update_info.address,
+                imageUrl:filename,
+                role:update_info.role,
+                gender:update_info.gender,
+                dob:update_info.dob,
+            });
+            res.status(200).json({
+                message:"User updated successfully"
+            })
+        } catch (error) {
+            res.status(403).json({
+                message : "Something wrong in update"
+            })
+            
+        }        
+    }
     static async fetchUser(req:IExtendRequest,res:Response){
         
         // console.log(user_info)
