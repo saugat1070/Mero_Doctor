@@ -27,6 +27,9 @@ const userSchema = new Schema({
     address:{
         type:String
     },
+    imageUrl:{
+        type:String
+    },
     gender:{
         type:String,
         enum:['male','female','other'],
