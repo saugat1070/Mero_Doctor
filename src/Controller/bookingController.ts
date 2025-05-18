@@ -7,7 +7,7 @@ import Payment from "../dataBase/Model/paymentModel";
 class BookingController {
   static async createBooking(req: IExtendRequest, res: Response) {
     const { id } = req?.params;
-    const { dateOfBooking,paymentMethod } = req.body;
+    const { dateOfBooking } = req.body;
     const userId = req?.user?.id;
     if (!id) {
       res.status(400).json({
@@ -15,7 +15,7 @@ class BookingController {
       });
       return;
     }
-    if (!dateOfBooking || !paymentMethod) {
+    if (!dateOfBooking ) {
       res.status(400).json({
         message: "please provide booking information and paymentStatus"
       });
@@ -29,15 +29,10 @@ class BookingController {
     }
 
     try {
-      const BookingDetails = await Booking.create({
+      await Booking.create({
       doctorInfo: id,
       bookingDate : dateOfBooking,
       user: userId
-    })
-
-    await Payment.create({
-      booking: BookingDetails._id,
-      paymentMethod : paymentMethod
     })
 
     res.status(200).json({
@@ -51,4 +46,26 @@ class BookingController {
       
     }
   }
+
+  static async getBookingDetails(req:IExtendRequest,res:Response){
+    const user_id = req?.user?.id
+    if(!user_id){
+      res.status(400).json({
+        message : "user should be login"
+      })
+      return;
+    }
+
+    const BookingDetails = await Booking.findOne({
+      user:user_id
+    })
+
+    res.status(200).json({
+      message : "Booking Cart is Successfully fetch!",
+      data : BookingDetails
+    })
+
+  }
 }
+
+export default BookingController
