@@ -42,7 +42,7 @@ const doctorSchema = new Schema({
     },
     user:{
         type:mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'user',
         unique:true,
         required:false
     }
