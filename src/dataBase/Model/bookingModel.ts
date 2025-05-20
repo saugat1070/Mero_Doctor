@@ -12,14 +12,15 @@ const bookingSchema = new Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    unique: true,
-    required: true,
+    required:false
   },
   doctorInfo : {
     type: mongoose.Schema.Types.ObjectId,
     ref:'DoctorInfo',
     required : true
   }
+},{
+  timestamps:true
 });
 
 const Booking = mongoose.model("Booking",bookingSchema)
