@@ -1,12 +1,14 @@
 import mongoose from "mongoose";
 import DoctorInfo from "./doctorModel";
+import { PaymentStatus } from "../../global/interface";
 const Schema = mongoose.Schema;
 
-enum PaymentMethod {
+export enum PaymentMethod {
   Cod = "cod",
   Esewa = "esewa",
   Khalti = "khalti",
 }
+
 
 const paymentSchema = new Schema({
   paymentMethod: {
@@ -15,14 +17,18 @@ const paymentSchema = new Schema({
     default: PaymentMethod.Cod,
   },
   PaymentStatus: {
-    type: Boolean,
-    default: false,
+    type: String,
+    enum:[PaymentStatus.Pending,PaymentStatus.SUCCESS],
+    default: PaymentStatus.Pending,
   },
   booking: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "DoctorInfo",
     required: true,
   },
+  pidx:{
+    type:String
+  }
 });
 
 const Payment = mongoose.model("Payment", paymentSchema);
