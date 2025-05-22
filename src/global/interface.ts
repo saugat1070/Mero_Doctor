@@ -14,3 +14,8 @@ export enum Role{
   Doctor = "doctor",
   Admin = "admin"
 }
+
+export enum PaymentStatus{
+  Pending = "pending",
+  SUCCESS = "success"
+}
