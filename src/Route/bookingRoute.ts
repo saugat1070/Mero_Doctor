@@ -8,6 +8,6 @@ router.route('/:id').post(UserMiddleware.IsUserLoggin,BookingController.createBo
 router.route('/').get(UserMiddleware.IsUserLoggin,BookingController.getBookingDetails)
 router.route('/payment/:id').post(UserMiddleware.IsUserLoggin,BookingController.PaymentSource)
 router.route('/payment/:id/verify-payment').post(UserMiddleware.IsUserLoggin,BookingController.verifyTranscition)
-
+router.route('/:bookingId/delete').delete(UserMiddleware.IsUserLoggin,BookingController.CancelBooking);
 
 export default router
