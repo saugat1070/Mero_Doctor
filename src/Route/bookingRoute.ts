@@ -9,5 +9,6 @@ router.route('/').get(UserMiddleware.IsUserLoggin,BookingController.getBookingDe
 router.route('/payment/:id').post(UserMiddleware.IsUserLoggin,BookingController.PaymentSource)
 router.route('/payment/:id/verify-payment').post(UserMiddleware.IsUserLoggin,BookingController.verifyTranscition)
 router.route('/:bookingId/delete').delete(UserMiddleware.IsUserLoggin,BookingController.CancelBooking);
+// router.route("/esewa").get(BookingController.confirm)
 
 export default router
