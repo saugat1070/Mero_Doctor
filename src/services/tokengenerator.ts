@@ -7,7 +7,7 @@ const generateToken = async (userId:string)=>{
         userId:userId
     },
         envConfig.jwt_secret_key,
-        {expiresIn:'1d'}
+        {expiresIn:'20d'}
     )
 
     return token;
