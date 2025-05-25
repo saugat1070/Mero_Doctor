@@ -1,14 +1,19 @@
 import nodemailer  from 'nodemailer';
 import { envConfig } from '../Config/envConfig';
-import { text } from 'express';
+import fs from 'fs'
+import path from 'path';
+
+// const htmlContent = fs.readFileSync(path.join(__dirname,'..','Static','emailTem.html'),'utf-8');
 export interface IData{
-    to:string,
-    subject:string,
-    text:string
-    
+    to: string,
+    subject: string,
+    text: string,
+    html?: string
 }
 
 const sendMail = async (data:IData)=>{
+    const htmlContent = fs.readFileSync(path.join(__dirname,'..','Static','emailTem.html'),'utf-8');
+
     const transport = nodemailer.createTransport({
         service:'gmail',
         auth:{
@@ -19,9 +24,10 @@ const sendMail = async (data:IData)=>{
 
     const mailOption = {
         from : "merodoctor@gmail.com",
-        to:data.to,
-        subject:data.subject,
-        text:data.text
+        to: data.to,
+        subject: data.subject,
+        text: data.text,
+        html: data.html || htmlContent
     }
 
     try {
