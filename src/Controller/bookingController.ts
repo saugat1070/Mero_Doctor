@@ -5,8 +5,19 @@ import Booking from "../dataBase/Model/bookingModel";
 import Payment from "../dataBase/Model/paymentModel";
 import { PaymentMethod } from "../dataBase/Model/paymentModel";
 import axios from "axios";
+import { generateEsewaSignature, verifyEsewa } from "../services/generateEsewaSignature";
+import { EsewaPayload } from "../services/generateEsewaSignature";
+import { envConfig } from "../Config/envConfig";
+import qs from 'qs'
+import { stat } from "fs";
 
 
+  // interface PaymentInfo{
+  //   response:{
+  //     transaction_uuid:string
+  //   }
+    
+  // }
 class BookingController {
   static async createBooking(req: IExtendRequest, res: Response) {
     const doctorId = req?.params
@@ -147,6 +158,33 @@ class BookingController {
       .appointmentFee;
 
     if (paymentMethod == PaymentMethod.Esewa) {
+      const dataEsewa:EsewaPayload = {
+        success_url : "https://developer.esewa.com.np/success",
+        failure_url : "https://developer.esewa.com.np/failure",
+        amount : bookingAmount,
+        transaction_uuid : booking._id.toString(),
+        product_code: 'EPAYTEST'
+      }
+      const paymentInitate =  generateEsewaSignature(dataEsewa);
+
+      const paymentCheck = await Payment.create({
+      booking: booking._id,
+      paymentMethod: paymentMethod,
+      transaction_uuid: booking._id
+    })
+
+      if(!paymentCheck){
+        res.status(403).json({
+          message : "Transcition Failed"
+        })
+        return;
+      }
+      res.status(200).json({
+        sucess:true,
+        payment: [paymentInitate,dataEsewa]
+      })
+
+
     } else if (paymentMethod == PaymentMethod.Khalti) {
       const data = {
         return_url: "http://localhost:5173/",
@@ -165,7 +203,7 @@ class BookingController {
           },
         }
       );
-      console.log(response.data)
+      // console.log(response.data)
       const paymentCheck = await Payment.create({
       booking: booking._id,
       paymentMethod: paymentMethod,
@@ -224,6 +262,47 @@ class BookingController {
     })
   }
 
+
+
+  static async VerifyPaymentEsewa(req:Request,res:Response){
+    const {data} = req.query
+
+    try {
+      const paymentInfo  = await verifyEsewa(data);
+      const purchaseItemData = await Payment.findOne({
+        transaction_uuid : paymentInfo.response.transaction_uuid
+      })
+
+      if(!purchaseItemData){
+        res.status(400).json({
+          success: false,
+          message : "Purchase not found"
+        })
+        return
+      }
+
+      const paymentData = await Payment.findOneAndUpdate(
+        { transaction_uuid: paymentInfo.response.transaction_uuid },
+        { PaymentStatus: PaymentStatus.SUCCESS }
+        
+      );
+      if(paymentData){
+          res.status(200).json({
+            message : "payment success"
+          })
+          return
+        }
+      res.status(400).json({
+        message : "payment process is failed"
+      })
+    } catch (error) {
+      res.status(500).json({
+        message : "payment process is failed",
+        error: error
+      })
+    }
+
+  }
   static async CancelBooking(req:IExtendRequest,res:Response){
     const {bookingId} = req?.params;
     console.log(bookingId,req.params)
@@ -250,6 +329,8 @@ class BookingController {
       })
     }
   }
+
+  
 }
 
 export default BookingController;
