@@ -27,7 +27,12 @@ const paymentSchema = new Schema({
     required: true,
   },
   pidx:{
-    type:String
+    type:String,
+    null: true
+  },
+  transaction_uuid:{
+    type:String,
+    null: true
   }
 });
 
